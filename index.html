@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>💵 Salehi Currency Converter</title>
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" />
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 40px;
+      background-color: #f4f6f9;
+    }
+    select, input, button {
+      padding: 10px;
+      margin: 10px;
+      font-size: 16px;
+    }
+    #result {
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 18px;
+    }
+    #downloadBtn, #nativeAppBtn {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌐 Live Currency Converter</h1>
+
+  <input type="number" id="amount" placeholder="Enter amount" />
+  <br />
+  <select id="fromCurrency"></select>
+  <select id="toCurrency"></select>
+  <br />
+  <button onclick="convertCurrency()">Convert</button>
+
+  <div id="result">Loading currencies...</div>
+
+  <br />
+  <button id="downloadBtn" onclick="downloadHtmlApp()">💾 Download HTML App</button>
+  <button id="nativeAppBtn" onclick="downloadNativeApp()">📱 Direct Download Native App</button>
+
+  <script>
+    const fromSelect = document.getElementById("fromCurrency");
+    const toSelect = document.getElementById("toCurrency");
+    const resultDiv = document.getElementById("result");
+
+    const currencySymbols = {
+      USD: '$',
+      EUR: '€',
+      GBP: '£',
+      AFN: 'Af',
+      INR: '₹',
+      CNY: '¥',
+      JPY: '¥',
+      RUB: '₽',
+      AUD: 'A$',
+      CAD: 'C$',
+      PKR: 'Rs',
+      TRY: '₺',
+      KRW: '₩',
+      AED: 'Dhs'
+    };
+
+    let exchangeRates = {};
+
+    fetch("https://open.er-api.com/v6/latest/USD")
+      .then(res => res.json())
+      .then(data => {
+        exchangeRates = data.rates;
+        const currencies = Object.keys(exchangeRates);
+
+        currencies.forEach(curr => {
+          const option1 = document.createElement("option");
+          option1.value = curr;
+          option1.text = `${curr} ${currencySymbols[curr] || ''}`;
+          fromSelect.appendChild(option1);
+
+          const option2 = document.createElement("option");
+          option2.value = curr;
+          option2.text = `${curr} ${currencySymbols[curr] || ''}`;
+          toSelect.appendChild(option2);
+        });
+
+        fromSelect.value = "USD";
+        toSelect.value = "AFN";
+
+        resultDiv.innerText = "Ready to convert!";
+      });
+
+    function convertCurrency() {
+      const amount = parseFloat(document.getElementById("amount").value);
+      const from = fromSelect.value;
+      const to = toSelect.value;
+
+      if (!amount || isNaN(amount)) {
+        resultDiv.innerText = "⚠️ Enter a valid number";
+        return;
+      }
+
+      const usdAmount = amount / exchangeRates[from];
+      const converted = usdAmount * exchangeRates[to];
+      const fromSymbol = currencySymbols[from] || from;
+      const toSymbol = currencySymbols[to] || to;
+
+      resultDiv.innerText = `${fromSymbol}${amount} = ${toSymbol}${converted.toFixed(2)}`;
+    }
+
+    function downloadHtmlApp() {
+      const blob = new Blob([document.documentElement.outerHTML], { type: 'text/html' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = "currency_converter.html";
+      link.click();
+    }
+
+    function downloadNativeApp() {
+      // دلته خپل Android یا iOS اپ مستقیم ډاونلوډ لینک ورکړه:
+      const apkLink = "https://yourdomain.com/path/to/app.apk";  // دلته خپل APK فایل لینک ورکړه
+      // که غواړې iOS IPA هم ورکړې، همدا ډول:
+      // const ipaLink = "https://yourdomain.com/path/to/app.ipa";
+
+      // اوس ساده د APK لینک ته مستقیم ځي:
+      window.location.href = apkLink;
+    }
+  </script>
+</body>
+</html>
